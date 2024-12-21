@@ -25,17 +25,6 @@ steps:
     az account set --subscription $(ARM_SUBSCRIPTION_ID)
   displayName: "Azure Login"
 
-- script: |
-    echo "Building Docker image..."
-    docker build -t $(containerRegistry)/$(imageName):$(Build.BuildId) .
-  displayName: "Build Docker Image"
-
-- script: |
-    echo "Pushing Docker image to ACR..."
-    az acr login --name $(containerRegistry)
-    docker push $(containerRegistry)/$(imageName):$(Build.BuildId)
-  displayName: "Push Docker Image to ACR"
-
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'test-connection'
@@ -46,6 +35,17 @@ steps:
       az aks get-credentials --resource-group $(RESOURCE_GROUP) --name $(CLUSTER_NAME)
       kubectl get nodes
   displayName: 'Get AKS Credentials and Verify Connection'
+
+- script: |
+    echo "Building Docker image..."
+    docker build -t $(containerRegistry)/$(imageName):$(Build.BuildId) .
+  displayName: "Build Docker Image"
+
+- script: |
+    echo "Pushing Docker image to ACR..."
+    az acr login --name $(containerRegistry)
+    docker push $(containerRegistry)/$(imageName):$(Build.BuildId)
+  displayName: "Push Docker Image to ACR"
 
 - script: |
     echo "Updating Kubernetes deployment..."
