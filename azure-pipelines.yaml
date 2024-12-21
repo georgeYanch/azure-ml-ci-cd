@@ -1,0 +1,42 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  containerRegistry: "gyanchacr.azurecr.io"
+  imageName: "ml-api"
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- task: DownloadSecureFile@1
+  name: "downloadServicePrincipal"
+  inputs:
+    secureFile: "<your-service-principal-json-file>"
+
+- script: |
+    echo "Logging into Azure..."
+    az login --service-principal -u $(ARM_CLIENT_ID) -p $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
+    az account set --subscription $(ARM_SUBSCRIPTION_ID)
+  displayName: "Azure Login"
+
+- script: |
+    echo "Building Docker image..."
+    docker build -t $(containerRegistry)/$(imageName):$(Build.BuildId) .
+  displayName: "Build Docker Image"
+
+- script: |
+    echo "Pushing Docker image to ACR..."
+    az acr login --name $(containerRegistry)
+    docker push $(containerRegistry)/$(imageName):$(Build.BuildId)
+  displayName: "Push Docker Image to ACR"
+
+- script: |
+    echo "Updating Kubernetes deployment..."
+    kubectl set image deployment/ml-api-deployment ml-api-container=$(containerRegistry)/$(imageName):$(Build.BuildId) --namespace default
+  displayName: "Update Kubernetes Deployment"
