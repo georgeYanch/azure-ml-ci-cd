@@ -25,6 +25,16 @@ steps:
     az account set --subscription $(ARM_SUBSCRIPTION_ID)
   displayName: "Azure Login"
 
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: $(ARM_SUBSCRIPTION_ID)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
+      kubectl get nodes
+  displayName: 'Get AKS Credentials and Verify Connection'
+
 - script: |
     echo "Building Docker image..."
     docker build -t $(containerRegistry)/$(imageName):$(Build.BuildId) .
