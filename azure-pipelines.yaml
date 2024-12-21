@@ -36,6 +36,17 @@ steps:
     docker push $(containerRegistry)/$(imageName):$(Build.BuildId)
   displayName: "Push Docker Image to ACR"
 
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: $(ARM_SUBSCRIPTION_ID)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Getting AKS credentials..."
+      az aks get-credentials --resource-group $(RESOURCE_GROUP) --name $(CLUSTER_NAME)
+      kubectl get nodes
+  displayName: 'Get AKS Credentials and Verify Connection'
+
 - script: |
     echo "Updating Kubernetes deployment..."
     kubectl set image deployment/ml-api-deployment ml-api-container=$(containerRegistry)/$(imageName):$(Build.BuildId) --namespace default
