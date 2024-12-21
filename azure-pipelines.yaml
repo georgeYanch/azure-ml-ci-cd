@@ -17,7 +17,7 @@ steps:
 - task: DownloadSecureFile@1
   name: "downloadServicePrincipal"
   inputs:
-    secureFile: "<your-service-principal-json-file>"
+    secureFile: sp.json
 
 - script: |
     echo "Logging into Azure..."
