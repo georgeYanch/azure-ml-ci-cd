@@ -28,7 +28,7 @@ steps:
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'test-connection'
-    scriptType: 'bash'
+    scriptType: 'batch'
     scriptLocation: 'inlineScript'
     inlineScript: |
       echo "Getting AKS credentials..."
