@@ -55,5 +55,5 @@ steps:
 
 - script: |
     echo "Updating Kubernetes deployment..."
-    kubectl set image deployment/ml-api-deployment ml-api-container=$(containerRegistry)/$(imageName):$(Build.BuildId) --namespace default
+    kubectl set image deployment/ml-api-deployment ml-api=$(containerRegistry)/$(imageName):$(Build.BuildId) --namespace default
   displayName: "Update Kubernetes Deployment"
