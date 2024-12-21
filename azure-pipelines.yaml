@@ -48,6 +48,12 @@ steps:
   displayName: "Push Docker Image to ACR"
 
 - script: |
+    echo "Applying Kubernetes deployment and service..."
+    kubectl apply -f $(Build.SourcesDirectory)/deployment.yaml
+    kubectl apply -f $(Build.SourcesDirectory)/service.yaml
+  displayName: 'Apply Kubernetes Deployment and Service'
+
+- script: |
     echo "Updating Kubernetes deployment..."
     kubectl set image deployment/ml-api-deployment ml-api-container=$(containerRegistry)/$(imageName):$(Build.BuildId) --namespace default
   displayName: "Update Kubernetes Deployment"
